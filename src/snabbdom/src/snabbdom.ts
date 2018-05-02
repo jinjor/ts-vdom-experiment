@@ -12,7 +12,24 @@ type VNodeQueue = Array<VNode>;
 
 const emptyNode = vnode('', {}, [], undefined, undefined);
 
-function sameVnode(vnode1: VNode, vnode2: VNode): boolean {
+function sameVnode(vnode1: VNode, vnode2: any): boolean {
+  // PATCH
+  if(vnode2.component) {
+    const component = vnode1.data.component || vnode2.component;
+    vnode2.component = undefined;
+    component.state = isDef(component.state)
+      ? component.state
+      : component.createState();
+    const tmpNode = component.view(vnode2.prop, component.state, component._handle);
+    vnode2.sel = tmpNode.sel;
+    vnode2.children = tmpNode.children;
+    vnode2.text = tmpNode.text;
+    vnode2.key = tmpNode.key;
+    vnode2.elm = tmpNode.elm;
+    vnode2.data = tmpNode.data;
+    vnode2.data.component = component;
+  }
+  //
   return vnode1.key === vnode2.key && vnode1.sel === vnode2.sel;
 }
 

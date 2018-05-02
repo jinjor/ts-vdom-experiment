@@ -54,44 +54,37 @@ function makeIterable(e, args) {
 
 export function createComponent<P, S>(
   options: Options<P, S>
-): (prop: P) => VNodeX {
+): (prop: P) => any {
   return prop => {
-    // TODO this sould not be re-created
-    function handle(name) {
-      const args = arguments;
-      // idealy (e, state) => { ... }, make another event module to achieve it.
-      return e => {
-        makeIterable(e, args);
-        const f = typeof name === "string" ? options.events[name] : name;
-        let triggerRender = f(e, state, render, state._propCache);
-        if (triggerRender === undefined) {
-          triggerRender = true;
-        }
-        if (triggerRender) {
-          render();
-        }
-      };
-    }
-    function render() {
-      const newNode = options.view(prop, state, state._handle); //TODO use old handle()
-      newNode.data.state = vnode.data.state;
-      patch(vnode, newNode);
-
-      vnode = newNode;
-    }
-
-    // TODO: don't have reference to old state
-    const state: any = options.createState();
-    state._handle = handle;
-    state._propCache = prop;
-    // TODO: don't have reference to old node
-    // TODO make it possible to use old state
-    let vnode = options.view(prop, state, state._handle);
-    vnode.data.state = state;
-    if (options.subscriptions) {
-      vnode.data.subscriptions = options.subscriptions(state, render);
-    }
-    return vnode;
+    const component = {
+      createState: options.createState,
+      state: undefined,
+      _handle(name) {
+        const args = arguments;
+        return e => {
+          console.log("events." + name + " has been called.");
+          function render() {
+            // TODO
+            console.log("render() has been called.");
+          }
+          makeIterable(e, args);
+          const f = options.events[name];
+          let triggerRender = f(e, component.state, render);
+          if (triggerRender === undefined) {
+            triggerRender = true;
+          }
+          if (triggerRender) {
+            render();
+          }
+        };
+      },
+      view: options.view,
+      _subscriptions: options.subscriptions
+    };
+    return {
+      prop,
+      component
+    };
   };
 }
 
