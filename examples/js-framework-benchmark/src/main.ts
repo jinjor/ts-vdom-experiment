@@ -89,7 +89,7 @@ const rootComponent = createComponent<undefined, RootState>({
     },
     add(_, state) {
       startMeasure("add");
-      add(state.data, state.id);
+      state.id = add(state.data, state.id);
     },
     update(_, state) {
       startMeasure("update");
