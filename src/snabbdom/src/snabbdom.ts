@@ -104,8 +104,8 @@ export function init(modules: Array<Partial<Module>>, domApi?: DOMAPI) {
   }
 
   function createElm(vnode: VNode, insertedVnodeQueue: VNodeQueue): Node {
-    let i: any, data = vnode.data;
     patchComponent(null, vnode, patch)
+    let i: any, data = vnode.data;
 
     if (data !== undefined) {
       if (isDef(i = data.hook) && isDef(i = i.init)) {
@@ -281,10 +281,8 @@ export function init(modules: Array<Partial<Module>>, domApi?: DOMAPI) {
   }
 
   function patchVnode(oldVnode: VNode, vnode: VNode, insertedVnodeQueue: VNodeQueue) {
-    let i: any, hook: any, component: any;
-    // PATCH
     patchComponent(oldVnode, vnode, patch);
-    //
+    let i: any, hook: any, component: any;
 
     if (isDef(i = vnode.data) && isDef(hook = i.hook) && isDef(i = hook.prepatch)) {
       i(oldVnode, vnode);

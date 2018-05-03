@@ -62,11 +62,14 @@ const row = createComponent<RowProps, object>({
       return false;
     }
   },
+  // watch({ selected, data }, _) {
+  //
+  // },
   view({ selected, data }, state, handle) {
-    return n("div")._([
-      thunk("tr", renderRow, [selected, data.id, data.label, handle])
-    ]);
-    // return thunk("tr", renderRow, [selected, data.id, data.label, handle]);
+    // return n("div")._([
+    //   thunk("tr", renderRow, [selected, data.id, data.label, handle])
+    // ]);
+    return thunk("tr", renderRow, [selected, data.id, data.label, handle]);
     // return renderRow(selected, data.id, data.label, handle);
   }
 });
@@ -178,7 +181,7 @@ const rootComponent = createComponent<undefined, RootState>({
                 handleClick: handle("select", d.id),
                 handleDelete: handle("delete", d.id),
                 selected: d.id === state.selected
-              }).k(d.id);
+              }).k(d.id); // TODO maybe not working
             })
         ]),
         n("span.preloadicon.glyphicon.glyphicon-remove").a(

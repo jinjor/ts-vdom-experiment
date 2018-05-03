@@ -58,7 +58,7 @@ export function createComponent<P, S>(
 ): (prop: P) => any {
   return prop => {
     const component = {
-      name: options.name,
+      // name: options.name,
       createState: options.createState,
       prop: prop,
       state: undefined,
@@ -86,9 +86,8 @@ export function createComponent<P, S>(
       _subscriptions: options.subscriptions
     };
     const node = {
-      sel: null,
+      sel: options.name,
       data: {
-        componentName: "component", // TODO should be unique
         component: component
       }
     };
