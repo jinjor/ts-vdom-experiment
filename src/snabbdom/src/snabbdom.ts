@@ -12,29 +12,32 @@ type VNodeQueue = Array<VNode>;
 
 const emptyNode = vnode('', {}, [], undefined, undefined);
 
-function patchComponent(vnode1: VNode, vnode2: VNode, patch: any) {
-  if(vnode2.data.component) {
-    const component = (vnode1 && vnode1.data.component) || vnode2.data.component;
-    component._patch = function() {
-      const newNode = component.view(component.prop, component.state, component._handle);
-      newNode.data.component = component;
-      patch(vnode2, newNode);
+function viewComponent(component: any) {
+  const vnode = component.view(component.prop, component.state, component._handle);
+  vnode.data.component = component;
+  return vnode;
+}
+
+function patchComponent(oldVnode: VNode, newVnode: VNode, patch: any) {
+  if(newVnode.data.component) {
+    const component = (oldVnode && oldVnode.data.component) || newVnode.data.component;
+    component._patch = () => {
+      patch(newVnode, viewComponent(component));
     };
     if(isUndef(component.state)) {
       component.state = component.createState();
     }
-    const tmpNode = component.view(component.prop, component.state, component._handle);
-    vnode2.sel = tmpNode.sel;
-    vnode2.children = tmpNode.children;
-    vnode2.text = tmpNode.text;
-    vnode2.key = tmpNode.key;
-    vnode2.elm = tmpNode.elm;
-    vnode2.data = tmpNode.data;
-    vnode2.data.component = component;
+    const tmpVnode = viewComponent(component);
+    newVnode.sel = tmpVnode.sel;
+    newVnode.children = tmpVnode.children;
+    newVnode.text = tmpVnode.text;
+    newVnode.key = tmpVnode.key;
+    newVnode.elm = tmpVnode.elm;
+    newVnode.data = tmpVnode.data;
   }
 }
 function sameVnode(vnode1: VNode, vnode2: VNode): boolean {
-  return vnode1.key === vnode2.key && (vnode1.sel === vnode2.sel || vnode1.data.componentName === vnode2.data.componentName);
+  return vnode1.key === vnode2.key && (vnode1.data.component === vnode2.data.component || vnode1.sel === vnode2.sel);
 }
 
 function isVnode(vnode: any): vnode is VNode {
@@ -310,7 +313,6 @@ export function init(modules: Array<Partial<Module>>, domApi?: DOMAPI) {
     }
   }
 
-  return patch;
   function patch(oldVnode: VNode | Element, vnode: VNode): VNode {
     let i: number, elm: Node, parent: Node;
     const insertedVnodeQueue: VNodeQueue = [];
@@ -341,4 +343,5 @@ export function init(modules: Array<Partial<Module>>, domApi?: DOMAPI) {
     return vnode;
   };
 
+  return patch;
 }
