@@ -36,12 +36,12 @@ function renderRow(selected, id, label, handle) {
       n("td.col-md-1")._(id),
       n("td.col-md-4")._([
         n("a")
-          .e("click", handle("click"))
+          .e("click", handle("_click"))
           ._(label)
       ]),
       n("td.col-md-1")._([
         n("a")
-          .e("click", handle("delete"))
+          .e("click", handle("_delete"))
           ._([n("span.glyphicon.glyphicon-remove").a("aria-hidden", "true")])
       ]),
       n("td.col-md-6")
@@ -52,17 +52,19 @@ const row = createComponent<RowProps, object>({
     return {};
   },
   events: {
-    click(e, state, _, props) {
+    _click(e, state, _, props) {
       props.handleClick(e);
       return false;
     },
-    delete(e, state, _, props) {
+    _delete(e, state, _, props) {
       props.handleDelete(e);
       return false;
     }
   },
   view({ selected, data }, state, handle) {
-    return thunk("tr", renderRow, [selected, data.id, data.label, handle]);
+    console.log("row.view()");
+    // return thunk("tr", renderRow, [selected, data.id, data.label, handle]);
+    return renderRow(selected, data.id, data.label, handle);
   }
 });
 interface RootState {
@@ -122,6 +124,8 @@ const rootComponent = createComponent<undefined, RootState>({
     }
   },
   view(_, state, handle) {
+    const renderId = ("" + Date.now()).slice(9);
+    console.log("container.view()", renderId);
     return n("div.container")
       ._([
         n("div.jumbotron")._([
@@ -170,14 +174,17 @@ const rootComponent = createComponent<undefined, RootState>({
           ])
         ]),
         n("table.table.table-hover.table-striped.test-data")._([
-          n("tbody").l(state.data, (d, i) => {
-            return row({
-              data: d,
-              handleClick: handle("select", d.id),
-              handleDelete: handle("delete", d.id),
-              selected: d.id === state.selected
-            }).k(d.id);
-          })
+          n("tbody")
+            .a("data-render-id", renderId)
+            .l(state.data, (d, i) => {
+              console.log("row()");
+              return row({
+                data: d,
+                handleClick: handle("select", d.id),
+                handleDelete: handle("delete", d.id),
+                selected: d.id === state.selected
+              }).k(d.id);
+            })
         ]),
         n("span.preloadicon.glyphicon.glyphicon-remove").a(
           "aria-hidden",

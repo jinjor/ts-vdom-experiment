@@ -12,15 +12,19 @@ type VNodeQueue = Array<VNode>;
 
 const emptyNode = vnode('', {}, [], undefined, undefined);
 
-function sameVnode(vnode1: VNode, vnode2: any): boolean {
-  // PATCH
-  if(vnode2.component) {
-    const component = vnode1.data.component || vnode2.component;
-    vnode2.component = undefined;
-    component.state = isDef(component.state)
-      ? component.state
-      : component.createState();
-    const tmpNode = component.view(vnode2.prop, component.state, component._handle);
+function patchComponent(vnode1: VNode, vnode2: VNode, patch: any) {
+  if(vnode2.data.component) {
+    const component = (vnode1 && vnode1.data.component) || vnode2.data.component;
+    component._patch = function() {
+      const newNode = component.view(component.prop, component.state, component._handle);
+      console.log("_patch() has been called");
+      console.log("newNode", newNode);
+      patch(vnode2, newNode);
+    };
+    if(isUndef(component.state)) {
+      component.state = component.createState();
+    }
+    const tmpNode = component.view(component.prop, component.state, component._handle);
     vnode2.sel = tmpNode.sel;
     vnode2.children = tmpNode.children;
     vnode2.text = tmpNode.text;
@@ -29,8 +33,9 @@ function sameVnode(vnode1: VNode, vnode2: any): boolean {
     vnode2.data = tmpNode.data;
     vnode2.data.component = component;
   }
-  //
-  return vnode1.key === vnode2.key && vnode1.sel === vnode2.sel;
+}
+function sameVnode(vnode1: VNode, vnode2: VNode): boolean {
+  return vnode1.key === vnode2.key && (vnode1.sel === vnode2.sel || vnode1.data.componentName === vnode2.data.componentName);
 }
 
 function isVnode(vnode: any): vnode is VNode {
@@ -94,6 +99,8 @@ export function init(modules: Array<Partial<Module>>, domApi?: DOMAPI) {
 
   function createElm(vnode: VNode, insertedVnodeQueue: VNodeQueue): Node {
     let i: any, data = vnode.data;
+    patchComponent(null, vnode, patch)
+
     if (data !== undefined) {
       if (isDef(i = data.hook) && isDef(i = i.init)) {
         i(vnode);
@@ -209,6 +216,8 @@ export function init(modules: Array<Partial<Module>>, domApi?: DOMAPI) {
     let elmToMove: VNode;
     let before: any;
 
+    // console.log(oldCh.length, newCh.length);
+
     while (oldStartIdx <= oldEndIdx && newStartIdx <= newEndIdx) {
       if (oldStartVnode == null) {
         oldStartVnode = oldCh[++oldStartIdx]; // Vnode might have been moved left
@@ -268,7 +277,14 @@ export function init(modules: Array<Partial<Module>>, domApi?: DOMAPI) {
   }
 
   function patchVnode(oldVnode: VNode, vnode: VNode, insertedVnodeQueue: VNodeQueue) {
-    let i: any, hook: any;
+    let i: any, hook: any, component: any;
+    // PATCH
+    patchComponent(oldVnode, vnode, patch);
+    //
+    if(oldVnode.sel === "tbody") {
+      console.log(oldVnode, vnode);
+    }
+
     if (isDef(i = vnode.data) && isDef(hook = i.hook) && isDef(i = hook.prepatch)) {
       i(oldVnode, vnode);
     }
@@ -300,7 +316,8 @@ export function init(modules: Array<Partial<Module>>, domApi?: DOMAPI) {
     }
   }
 
-  return function patch(oldVnode: VNode | Element, vnode: VNode): VNode {
+  return patch;
+  function patch(oldVnode: VNode | Element, vnode: VNode): VNode {
     let i: number, elm: Node, parent: Node;
     const insertedVnodeQueue: VNodeQueue = [];
     for (i = 0; i < cbs.pre.length; ++i) cbs.pre[i]();
@@ -329,4 +346,5 @@ export function init(modules: Array<Partial<Module>>, domApi?: DOMAPI) {
     for (i = 0; i < cbs.post.length; ++i) cbs.post[i]();
     return vnode;
   };
+
 }

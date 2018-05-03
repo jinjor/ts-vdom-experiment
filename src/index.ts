@@ -58,33 +58,47 @@ export function createComponent<P, S>(
   return prop => {
     const component = {
       createState: options.createState,
+      prop: prop,
       state: undefined,
+      _patch() {
+        throw new Error("empty _patch() has been called");
+      },
+      _render() {
+        console.log("render() has been called.");
+        component._patch();
+      },
       _handle(name) {
         const args = arguments;
         return e => {
           console.log("events." + name + " has been called.");
-          function render() {
-            // TODO
-            console.log("render() has been called.");
-          }
           makeIterable(e, args);
           const f = options.events[name];
-          let triggerRender = f(e, component.state, render);
+          let triggerRender = f(
+            e,
+            component.state,
+            component._render,
+            component.prop
+          );
           if (triggerRender === undefined) {
             triggerRender = true;
           }
           if (triggerRender) {
-            render();
+            component._render();
           }
         };
       },
       view: options.view,
       _subscriptions: options.subscriptions
     };
-    return {
-      prop,
-      component
+    const node = {
+      // text: "debug_not_initialized_component", // TODO
+      data: {
+        componentName: "component", // TODO should be unique
+        component: component
+      }
     };
+    addHelpers(node);
+    return node;
   };
 }
 
