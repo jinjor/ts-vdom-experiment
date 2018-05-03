@@ -48,6 +48,7 @@ function renderRow(selected, id, label, handle) {
     ]);
 }
 const row = createComponent<RowProps, object>({
+  name: "row",
   createState() {
     return {};
   },
@@ -62,7 +63,6 @@ const row = createComponent<RowProps, object>({
     }
   },
   view({ selected, data }, state, handle) {
-    console.log("row.view()");
     // return thunk("tr", renderRow, [selected, data.id, data.label, handle]);
     return renderRow(selected, data.id, data.label, handle);
   }
@@ -73,6 +73,7 @@ interface RootState {
   data: Array<Data>;
 }
 const rootComponent = createComponent<undefined, RootState>({
+  name: "root",
   createState() {
     return {
       data: [],
@@ -80,12 +81,6 @@ const rootComponent = createComponent<undefined, RootState>({
       id: 1
     };
   },
-  // componentDidUpdate() {
-  //   stopMeasure();
-  // }
-  // componentDidMount() {
-  //   stopMeasure();
-  // }
   events: {
     run(_, state) {
       startMeasure("run");
@@ -124,8 +119,6 @@ const rootComponent = createComponent<undefined, RootState>({
     }
   },
   view(_, state, handle) {
-    const renderId = ("" + Date.now()).slice(9);
-    console.log("container.view()", renderId);
     return n("div.container")
       ._([
         n("div.jumbotron")._([
@@ -175,9 +168,8 @@ const rootComponent = createComponent<undefined, RootState>({
         ]),
         n("table.table.table-hover.table-striped.test-data")._([
           n("tbody")
-            .a("data-render-id", renderId)
+            .a("data-render-id")
             .l(state.data, (d, i) => {
-              console.log("row()");
               return row({
                 data: d,
                 handleClick: handle("select", d.id),
@@ -194,5 +186,4 @@ const rootComponent = createComponent<undefined, RootState>({
       .h("postpatch", stopMeasure);
   }
 });
-console.log("debug");
 start(rootComponent, document.getElementsByClassName("container")[0]);

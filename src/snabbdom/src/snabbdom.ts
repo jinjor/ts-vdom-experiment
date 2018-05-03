@@ -17,8 +17,7 @@ function patchComponent(vnode1: VNode, vnode2: VNode, patch: any) {
     const component = (vnode1 && vnode1.data.component) || vnode2.data.component;
     component._patch = function() {
       const newNode = component.view(component.prop, component.state, component._handle);
-      console.log("_patch() has been called");
-      console.log("newNode", newNode);
+      newNode.data.component = component;
       patch(vnode2, newNode);
     };
     if(isUndef(component.state)) {
@@ -216,8 +215,6 @@ export function init(modules: Array<Partial<Module>>, domApi?: DOMAPI) {
     let elmToMove: VNode;
     let before: any;
 
-    // console.log(oldCh.length, newCh.length);
-
     while (oldStartIdx <= oldEndIdx && newStartIdx <= newEndIdx) {
       if (oldStartVnode == null) {
         oldStartVnode = oldCh[++oldStartIdx]; // Vnode might have been moved left
@@ -281,9 +278,6 @@ export function init(modules: Array<Partial<Module>>, domApi?: DOMAPI) {
     // PATCH
     patchComponent(oldVnode, vnode, patch);
     //
-    if(oldVnode.sel === "tbody") {
-      console.log(oldVnode, vnode);
-    }
 
     if (isDef(i = vnode.data) && isDef(hook = i.hook) && isDef(i = hook.prepatch)) {
       i(oldVnode, vnode);

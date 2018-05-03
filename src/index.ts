@@ -23,6 +23,7 @@ export const patch: (oldNode: VNode, newNode: VNode) => void = init([
 ]);
 
 interface Options<P, S> {
+  name: string;
   createState?(): S;
   subscriptions?(state: S, render: any): any;
   events: object;
@@ -57,33 +58,27 @@ export function createComponent<P, S>(
 ): (prop: P) => any {
   return prop => {
     const component = {
+      name: options.name,
       createState: options.createState,
       prop: prop,
       state: undefined,
-      _patch() {
-        throw new Error("empty _patch() has been called");
-      },
-      _render() {
-        console.log("render() has been called.");
-        component._patch();
-      },
+      _patch: undefined,
       _handle(name) {
         const args = arguments;
         return e => {
-          console.log("events." + name + " has been called.");
           makeIterable(e, args);
           const f = options.events[name];
           let triggerRender = f(
             e,
             component.state,
-            component._render,
+            component._patch,
             component.prop
           );
           if (triggerRender === undefined) {
             triggerRender = true;
           }
           if (triggerRender) {
-            component._render();
+            component._patch();
           }
         };
       },
@@ -91,7 +86,7 @@ export function createComponent<P, S>(
       _subscriptions: options.subscriptions
     };
     const node = {
-      // text: "debug_not_initialized_component", // TODO
+      sel: null,
       data: {
         componentName: "component", // TODO should be unique
         component: component
