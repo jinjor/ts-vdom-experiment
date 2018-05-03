@@ -29,7 +29,7 @@ interface RowProps {
   data: Data;
 }
 function renderRow(selected, id, label, handle) {
-  // console.log("thunk", selected, id, label, handle);
+  console.log("thunk", selected, id, label);
   return n("tr")
     .c("danger", selected)
     ._([
@@ -63,8 +63,11 @@ const row = createComponent<RowProps, object>({
     }
   },
   view({ selected, data }, state, handle) {
+    return n("div")._([
+      thunk("tr", renderRow, [selected, data.id, data.label, handle])
+    ]);
     // return thunk("tr", renderRow, [selected, data.id, data.label, handle]);
-    return renderRow(selected, data.id, data.label, handle);
+    // return renderRow(selected, data.id, data.label, handle);
   }
 });
 interface RootState {

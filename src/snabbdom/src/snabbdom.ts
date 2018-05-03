@@ -21,6 +21,7 @@ function viewComponent(component: any) {
 function patchComponent(oldVnode: VNode, newVnode: VNode, patch: any) {
   if(newVnode.data.component) {
     const component = (oldVnode && oldVnode.data.component) || newVnode.data.component;
+    component.prop = newVnode.data.component.prop;
     component._patch = () => {
       patch(newVnode, viewComponent(component));
     };
@@ -37,7 +38,10 @@ function patchComponent(oldVnode: VNode, newVnode: VNode, patch: any) {
   }
 }
 function sameVnode(vnode1: VNode, vnode2: VNode): boolean {
-  return vnode1.key === vnode2.key && (vnode1.data.component === vnode2.data.component || vnode1.sel === vnode2.sel);
+  if(vnode1.data.component && vnode2.data.component) {
+    return vnode1.data.component.name === vnode2.data.component.name;
+  }
+  return vnode1.key === vnode2.key && vnode1.sel === vnode2.sel;
 }
 
 function isVnode(vnode: any): vnode is VNode {
