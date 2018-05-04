@@ -12,9 +12,19 @@ type VNodeQueue = Array<VNode>;
 
 const emptyNode = vnode('', {}, [], undefined, undefined);
 
-function viewComponent(component: any) {
+function viewComponent(component: any, newNode: any) {
+  const data = newNode.data;
   const vnode = component.view(component.prop, component.state, component._handle);
   vnode.data.component = component;
+  if(newNode.key) {
+    vnode.key = newNode.key;
+  }
+  for(let key of ["style", "props", "class"]) {
+    for(let k in data[key]) {
+      vnode.data[key] = vnode.data[key] || {};
+      vnode.data[key][k] = data[key][k];
+    }
+  }
   return vnode;
 }
 
@@ -23,12 +33,12 @@ function patchComponent(oldVnode: VNode, newVnode: VNode, patch: any) {
     const component = (oldVnode && oldVnode.data.component) || newVnode.data.component;
     component.prop = newVnode.data.component.prop;
     component._patch = () => {
-      patch(newVnode, viewComponent(component));
+      patch(newVnode, viewComponent(component, newVnode));
     };
     if(isUndef(component.state)) {
       component.state = component.createState();
     }
-    const tmpVnode = viewComponent(component);
+    const tmpVnode = viewComponent(component, newVnode);
     newVnode.sel = tmpVnode.sel;
     newVnode.children = tmpVnode.children;
     newVnode.text = tmpVnode.text;

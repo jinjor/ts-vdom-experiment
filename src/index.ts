@@ -147,14 +147,14 @@ function addHelpers(node: any) {
     return node;
   };
   node.k = name => {
-    node.data.key = name;
+    node.key = name;
     return node;
   };
   node.l = (childModels, f) => {
     return node._(
       childModels.map((model, index, array) => {
         const node = f(model, index, array);
-        if (node.data.key === undefined) {
+        if (node.key === undefined) {
           throw new Error(
             `key for ${JSON.stringify(model, null, 2)} is not provided`
           );

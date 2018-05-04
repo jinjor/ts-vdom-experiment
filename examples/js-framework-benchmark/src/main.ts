@@ -181,7 +181,9 @@ const rootComponent = createComponent<undefined, RootState>({
                 handleClick: handle("select", d.id),
                 handleDelete: handle("delete", d.id),
                 selected: d.id === state.selected
-              }).k(d.id); // TODO maybe not working
+              })
+                .s("color", "red")
+                .k(d.id); // TODO maybe not working
             })
         ]),
         n("span.preloadicon.glyphicon.glyphicon-remove").a(

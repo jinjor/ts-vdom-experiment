@@ -20,6 +20,19 @@ function copyToThunk(vnode: VNode, thunk: VNode): void {
   (vnode.data as VNodeData).fn = (thunk.data as VNodeData).fn;
   (vnode.data as VNodeData).args = (thunk.data as VNodeData).args;
   (vnode.data as any).component = (thunk.data as any).component;
+  if((thunk.data as any).component) {
+    const data = thunk.data as any;
+    if(thunk.key !== undefined) {
+      vnode.key = thunk.key;
+    }
+    for(let key of ["style", "props", "class"]) {
+      for(let k in data[key]) {
+        vnode.data[key] = vnode.data[key] || {};
+        vnode.data[key][k] = data[key][k];
+      }
+    }
+  }
+
   thunk.data = vnode.data;
   thunk.children = vnode.children;
   thunk.text = vnode.text;
