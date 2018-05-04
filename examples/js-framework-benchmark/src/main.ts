@@ -66,9 +66,6 @@ const row = createComponent<RowProps, object>({
   //
   // },
   view({ selected, data }, state, handle) {
-    // return n("div")._([
-    //   thunk("tr", renderRow, [selected, data.id, data.label, handle])
-    // ]);
     return thunk("tr", renderRow, [selected, data.id, data.label, handle]);
     // return renderRow(selected, data.id, data.label, handle);
   }
@@ -182,8 +179,8 @@ const rootComponent = createComponent<undefined, RootState>({
                 handleDelete: handle("delete", d.id),
                 selected: d.id === state.selected
               })
-                .s("color", "red")
-                .k(d.id); // TODO maybe not working
+                .s("color", "red") // for debug
+                .k(d.id);
             })
         ]),
         n("span.preloadicon.glyphicon.glyphicon-remove").a(

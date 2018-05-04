@@ -1,4 +1,9 @@
-import { h, thunk as originalThunk, init } from "./snabbdom/src/snabbdom";
+import {
+  h,
+  thunk as originalThunk,
+  Component,
+  init
+} from "./snabbdom/src/snabbdom";
 import { VNode } from "./snabbdom/src/vnode";
 import { classModule } from "./snabbdom/src/modules/class";
 import { propsModule } from "./snabbdom/src/modules/props";
@@ -55,15 +60,15 @@ function makeIterable(e, args) {
 
 export function createComponent<P, S>(
   options: Options<P, S>
-): (prop: P) => any {
+): (prop: P) => VNodeX {
   return prop => {
-    const component = {
+    const component: Component<P, S> = {
       // name: options.name,
       createState: options.createState,
       prop: prop,
       state: undefined,
-      _patch: undefined,
-      _handle(name) {
+      patch: undefined,
+      handle(name) {
         const args = arguments;
         return e => {
           makeIterable(e, args);
@@ -71,19 +76,19 @@ export function createComponent<P, S>(
           let triggerRender = f(
             e,
             component.state,
-            component._patch,
+            component.patch,
             component.prop
           );
           if (triggerRender === undefined) {
             triggerRender = true;
           }
           if (triggerRender) {
-            component._patch();
+            component.patch();
           }
         };
       },
-      view: options.view,
-      _subscriptions: options.subscriptions
+      view: options.view
+      // _subscriptions: options.subscriptions
     };
     const node = {
       sel: options.name,
@@ -92,7 +97,7 @@ export function createComponent<P, S>(
       }
     };
     addHelpers(node);
-    return node;
+    return node as any;
   };
 }
 

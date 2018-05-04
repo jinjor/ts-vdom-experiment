@@ -12,7 +12,17 @@ type VNodeQueue = Array<VNode>;
 
 const emptyNode = vnode('', {}, [], undefined, undefined);
 
-function overrideRenderedData(from: any, to: any) {
+type Handle = (event: any) => void;
+export interface Component<P, S> {
+  prop: P;
+  state: S;
+  patch(): void;
+  createState(): S;
+  handle(name: string): Handle;
+  view(prop: P, state: S, handle: Handle): VNode;
+};
+
+function overrideRenderedData(from: VNode, to: VNode) {
   if(from.key) {
     to.key = from.key;
   }
@@ -24,23 +34,28 @@ function overrideRenderedData(from: any, to: any) {
   }
 }
 
-function viewComponent(component: any, newNode: any) {
-  const vnode = component.view(component.prop, component.state, component._handle);
+function viewComponent<P, S>(component: Component<P, S>, newNode: VNode): VNode {
+  const vnode = component.view(component.prop, component.state, component.handle);
   vnode.data.component = component;
   overrideRenderedData(newNode, vnode);
   return vnode;
 }
 
-function patchComponent(oldVnode: VNode, newVnode: VNode, patch: any) {
+function patchComponent(oldVnode: VNode,
+                        newVnode: VNode,
+                        patch: (oldNode:VNode, newNode:VNode) => void) {
   if(newVnode.data.component) {
-    const component = (oldVnode && oldVnode.data.component) || newVnode.data.component;
-    component.prop = newVnode.data.component.prop;
-    component._patch = () => {
-      patch(newVnode, viewComponent(component, newVnode));
-    };
-    if(isUndef(component.state)) {
+    let component;
+    if(isDef(oldVnode) && isDef(oldVnode.data.component)) {
+      component = oldVnode.data.component
+    } else {
+      component = newVnode.data.component;
       component.state = component.createState();
     }
+    component.prop = newVnode.data.component.prop;
+    component.patch = () => {
+      patch(newVnode, viewComponent(component, newVnode));
+    };
     const tmpVnode = viewComponent(component, newVnode);
     newVnode.sel = tmpVnode.sel;
     newVnode.children = tmpVnode.children;
@@ -118,7 +133,7 @@ export function init(modules: Array<Partial<Module>>, domApi?: DOMAPI) {
   }
 
   function createElm(vnode: VNode, insertedVnodeQueue: VNodeQueue): Node {
-    patchComponent(null, vnode, patch)
+    patchComponent(undefined, vnode, patch)
     let i: any, data = vnode.data;
 
     if (data !== undefined) {
