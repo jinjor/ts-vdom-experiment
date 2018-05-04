@@ -7,7 +7,7 @@ interface TodoProps {
   handleRemove: any;
 }
 const todoComponent = createComponent<TodoProps, undefined>({
-  events: {},
+  name: "todo",
   view({ todo, handleToggle, handleRemove }, _, handle) {
     return n("li")
       .c("completed", todo.done)
@@ -58,10 +58,13 @@ interface App {
   todos: Todos;
 }
 const app = createComponent<undefined, App>({
-  state: {
-    text: "",
-    hash: location.hash,
-    todos: new Todos()
+  name: "app",
+  createState() {
+    return {
+      text: "",
+      hash: location.hash,
+      todos: new Todos()
+    };
   },
   subscriptions: (state, handle) => {
     const listener = handle("updateHash");

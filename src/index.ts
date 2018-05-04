@@ -85,58 +85,53 @@ export function createComponent<P, S>(
       thunked: options.thunked
       // _subscriptions: options.subscriptions
     };
-    const node = {
-      sel: options.name,
-      data: {
-        component: component
-      }
-    };
-    addHelpers(node);
-    return node as any;
+    const vnode = n(options.name);
+    vnode.data.component = component;
+    return vnode;
   };
 }
 
-function addHelpers(node: any) {
-  node.a = (key, value = false) => {
-    node.data.props = node.data.props || {};
-    node.data.props[key] = value;
-    return node;
-  };
-  node.c = function(key, active = true) {
-    node.data.class = node.data.class || {};
-    if (Array.isArray(key)) {
-      for (let k of key) {
-        node.data.class[k] = true;
-      }
-    } else {
-      for (let k of key.split(" ")) {
-        node.data.class[k] = active;
-      }
-    }
-    return node;
-  };
-  node.s = function(key, value, active = true) {
-    if (active) {
-      node.data.style = node.data.style || {};
-      node.data.style[key] = value;
-    }
-    return node;
-  };
-  node.e = (key, value) => {
-    node.data.on = node.data.on || {};
-    node.data.on[key] = value;
-    return node;
-  };
-  node.h = (name, f) => {
-    node.data.hook = node.data.hook || {};
-    node.data.hook[name] = f;
-    return node;
-  };
-  node.k = name => {
-    node.key = name;
-    return node;
-  };
-}
+// function addHelpers(node: any) {
+//   node.a = (key, value = false) => {
+//     node.data.props = node.data.props || {};
+//     node.data.props[key] = value;
+//     return node;
+//   };
+//   node.c = function(key, active = true) {
+//     node.data.class = node.data.class || {};
+//     if (Array.isArray(key)) {
+//       for (let k of key) {
+//         node.data.class[k] = true;
+//       }
+//     } else {
+//       for (let k of key.split(" ")) {
+//         node.data.class[k] = active;
+//       }
+//     }
+//     return node;
+//   };
+//   node.s = function(key, value, active = true) {
+//     if (active) {
+//       node.data.style = node.data.style || {};
+//       node.data.style[key] = value;
+//     }
+//     return node;
+//   };
+//   node.e = (key, value) => {
+//     node.data.on = node.data.on || {};
+//     node.data.on[key] = value;
+//     return node;
+//   };
+//   node.h = (name, f) => {
+//     node.data.hook = node.data.hook || {};
+//     node.data.hook[name] = f;
+//     return node;
+//   };
+//   node.k = name => {
+//     node.key = name;
+//     return node;
+//   };
+// }
 
 export function n(tagName: string): VNodeX {
   return h(tagName) as VNodeX;
