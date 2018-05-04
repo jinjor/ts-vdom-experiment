@@ -59,18 +59,25 @@ interface App {
 }
 const app = createComponent<undefined, App>({
   name: "app",
-  createState() {
+  createState(hash) {
     return {
       text: "",
-      hash: location.hash,
+      hash: hash,
       todos: new Todos()
     };
   },
-  subscriptions: (state, handle) => {
+  subscriptions(handle) {
     const listener = handle("updateHash");
     return {
-      add: () => window.addEventListener("hashchange", listener),
-      remove: () => window.removeEventListener("hashchange", listener)
+      init() {
+        return location.hash;
+      },
+      add() {
+        window.addEventListener("hashchange", listener);
+      },
+      remove() {
+        window.removeEventListener("hashchange", listener);
+      }
     };
   },
   events: {

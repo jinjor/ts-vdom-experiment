@@ -1,13 +1,11 @@
-import { h, thunk, Component, init } from "./snabbdom/src/snabbdom";
+import { h, thunk, Component, Sub, init } from "./snabbdom/src/snabbdom";
 import { VNode, VNodeX } from "./snabbdom/src/vnode";
 import { classModule } from "./snabbdom/src/modules/class";
 import { propsModule } from "./snabbdom/src/modules/props";
 import { styleModule } from "./snabbdom/src/modules/style";
 import { eventListenersModule } from "./snabbdom/src/modules/eventlisteners";
-import { subscriptionsModule } from "./subscriptions";
 
 export const patch: (oldNode: VNode, newNode: VNode) => void = init([
-  subscriptionsModule,
   classModule,
   propsModule,
   styleModule,
@@ -16,8 +14,8 @@ export const patch: (oldNode: VNode, newNode: VNode) => void = init([
 
 interface Options<P, S> {
   name: string;
-  createState?(): S;
-  subscriptions?(state: S, render: any): any;
+  createState?(initialSubValue: any): S;
+  subscriptions?(handle: any): Sub;
   events?: object;
   view(prop: P, state: S, handle: any): VNodeX | Array<any>;
   thunked?: Function;
@@ -80,8 +78,8 @@ export function createComponent<P, S>(
         };
       },
       view: options.view,
-      thunked: options.thunked
-      // _subscriptions: options.subscriptions
+      thunked: options.thunked,
+      subscriptions: options.subscriptions
     };
     const vnode = n(options.name);
     vnode.data.component = component;

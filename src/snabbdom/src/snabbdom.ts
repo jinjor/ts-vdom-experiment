@@ -14,12 +14,18 @@ type VNodeQueue = Array<VNode>;
 const emptyNode = vnode('', {}, [], undefined, undefined);
 
 type Handle = (event: any) => void;
+export interface Sub {
+  init(): any;
+  add(): void;
+  remove(): void;
+};
 export interface Component<P, S> {
   name: string,
   prop: P;
   state: S;
   patch(): void;
-  createState(): S;
+  createState(initialSubValue: any): S;
+  subscriptions(handle: Handle): Sub
   handle(name: string): Handle;
   view(prop: P, state: S, handle: Handle): VNode | any[];
   thunked?: Function;
@@ -60,8 +66,16 @@ function patchComponent(oldVnode: VNode,
     if(isDef(oldVnode) && isDef(oldVnode.data.component)) {
       component = oldVnode.data.component
     } else {
+      // initialize
       component = newVnode.data.component;
-      component.state = component.createState();
+      const sub = component.subscriptions(component.handle);
+      sub.add();
+      newVnode.data.hook = newVnode.data.hook || {};
+      if(newVnode.data.hook.destroy) {
+        throw new Error("destroy hook is already defined");
+      }
+      newVnode.data.hook.destroy = sub.remove;
+      component.state = component.createState(sub.init);
     }
     component.prop = newVnode.data.component.prop;
     component.patch = () => {
