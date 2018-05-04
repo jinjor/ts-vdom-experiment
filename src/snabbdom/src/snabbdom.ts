@@ -12,19 +12,22 @@ type VNodeQueue = Array<VNode>;
 
 const emptyNode = vnode('', {}, [], undefined, undefined);
 
-function viewComponent(component: any, newNode: any) {
-  const data = newNode.data;
-  const vnode = component.view(component.prop, component.state, component._handle);
-  vnode.data.component = component;
-  if(newNode.key) {
-    vnode.key = newNode.key;
+function overrideRenderedData(from: any, to: any) {
+  if(from.key) {
+    to.key = from.key;
   }
   for(let key of ["style", "props", "class"]) {
-    for(let k in data[key]) {
-      vnode.data[key] = vnode.data[key] || {};
-      vnode.data[key][k] = data[key][k];
+    for(let k in from.data[key]) {
+      to.data[key] = to.data[key] || {};
+      to.data[key][k] = from.data[key][k];
     }
   }
+}
+
+function viewComponent(component: any, newNode: any) {
+  const vnode = component.view(component.prop, component.state, component._handle);
+  vnode.data.component = component;
+  overrideRenderedData(newNode, vnode);
   return vnode;
 }
 
@@ -47,6 +50,7 @@ function patchComponent(oldVnode: VNode, newVnode: VNode, patch: any) {
     newVnode.data = tmpVnode.data;
   }
 }
+
 function sameVnode(vnode1: VNode, vnode2: VNode): boolean {
   if(vnode1.data.component && vnode2.data.component) {
     return vnode1.data.component.name === vnode2.data.component.name;
