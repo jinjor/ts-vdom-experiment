@@ -31,8 +31,9 @@ interface Options<P, S> {
   name: string;
   createState?(): S;
   subscriptions?(state: S, render: any): any;
-  events: object;
-  view(prop: P, state: S, handle: any): VNodeX;
+  events?: object;
+  view(prop: P, state: S, handle: any): VNodeX | Array<any>;
+  thunked?: Function;
 }
 
 function makeIterable(e, args) {
@@ -58,13 +59,17 @@ function makeIterable(e, args) {
   e[Symbol.iterator] = () => iterator;
 }
 
+function createStateDefault(): any {
+  return {};
+}
 export function createComponent<P, S>(
   options: Options<P, S>
 ): (prop: P) => VNodeX {
   return prop => {
+    const events = options.events || {};
     const component: Component<P, S> = {
-      // name: options.name,
-      createState: options.createState,
+      name: options.name,
+      createState: options.createState || createStateDefault,
       prop: prop,
       state: undefined,
       patch: undefined,
@@ -72,22 +77,23 @@ export function createComponent<P, S>(
         const args = arguments;
         return e => {
           makeIterable(e, args);
-          const f = options.events[name];
-          let triggerRender = f(
+          const f = events[name];
+          if (f === undefined) {
+            throw new Error(`event "${name}" is not defined`);
+          }
+          let triggerPatch = f(
             e,
             component.state,
             component.patch,
             component.prop
           );
-          if (triggerRender === undefined) {
-            triggerRender = true;
-          }
-          if (triggerRender) {
+          if (triggerPatch === undefined || triggerPatch === true) {
             component.patch();
           }
         };
       },
-      view: options.view
+      view: options.view,
+      thunked: options.thunked
       // _subscriptions: options.subscriptions
     };
     const node = {

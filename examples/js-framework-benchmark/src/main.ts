@@ -28,46 +28,40 @@ interface RowProps {
   handleDelete: any;
   data: Data;
 }
-function renderRow(selected, id, label, handle) {
-  console.log("thunk", selected, id, label);
-  return n("tr")
-    .c("danger", selected)
-    ._([
-      n("td.col-md-1")._(id),
-      n("td.col-md-4")._([
-        n("a")
-          .e("click", handle("_click"))
-          ._(label)
-      ]),
-      n("td.col-md-1")._([
-        n("a")
-          .e("click", handle("_delete"))
-          ._([n("span.glyphicon.glyphicon-remove").a("aria-hidden", "true")])
-      ]),
-      n("td.col-md-6")
-    ]);
-}
+
 const row = createComponent<RowProps, object>({
   name: "row",
-  createState() {
-    return {};
-  },
   events: {
-    _click(e, state, _, props) {
+    click(e, state, _, props) {
       props.handleClick(e);
       return false;
     },
-    _delete(e, state, _, props) {
+    delete(e, state, _, props) {
       props.handleDelete(e);
       return false;
     }
   },
-  // watch({ selected, data }, _) {
-  //
-  // },
   view({ selected, data }, state, handle) {
-    return thunk("tr", renderRow, [selected, data.id, data.label, handle]);
-    // return renderRow(selected, data.id, data.label, handle);
+    return ["tr", selected, data.id, data.label, handle];
+  },
+  thunked(selected, id, label, handle) {
+    console.log("row.view", selected, id, label);
+    return n("tr")
+      .c("danger", selected)
+      ._([
+        n("td.col-md-1")._(id),
+        n("td.col-md-4")._([
+          n("a")
+            .e("click", handle("click"))
+            ._(label)
+        ]),
+        n("td.col-md-1")._([
+          n("a")
+            .e("click", handle("delete"))
+            ._([n("span.glyphicon.glyphicon-remove").a("aria-hidden", "true")])
+        ]),
+        n("td.col-md-6")
+      ]);
   }
 });
 interface RootState {

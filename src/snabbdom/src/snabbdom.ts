@@ -4,6 +4,7 @@ import {Hooks} from './hooks';
 import vnode, {VNode, VNodeData, Key} from './vnode';
 import * as is from './is';
 import htmlDomApi, {DOMAPI} from './htmldomapi';
+import thunk from './thunk';
 
 function isUndef(s: any): boolean { return s === undefined; }
 function isDef(s: any): boolean { return s !== undefined; }
@@ -14,12 +15,14 @@ const emptyNode = vnode('', {}, [], undefined, undefined);
 
 type Handle = (event: any) => void;
 export interface Component<P, S> {
+  name: string,
   prop: P;
   state: S;
   patch(): void;
   createState(): S;
   handle(name: string): Handle;
-  view(prop: P, state: S, handle: Handle): VNode;
+  view(prop: P, state: S, handle: Handle): VNode | any[];
+  thunked?: Function;
 };
 
 function overrideRenderedData(from: VNode, to: VNode) {
@@ -35,7 +38,15 @@ function overrideRenderedData(from: VNode, to: VNode) {
 }
 
 function viewComponent<P, S>(component: Component<P, S>, newNode: VNode): VNode {
-  const vnode = component.view(component.prop, component.state, component.handle);
+  let vnode;
+  if(component.thunked) {
+    const _ = component.view(component.prop, component.state, component.handle) as any[];
+    const sel = _[0];
+    const args = _.slice(1);
+    vnode = thunk(sel, component.thunked, args);
+  } else {
+    vnode = component.view(component.prop, component.state, component.handle);
+  }
   vnode.data.component = component;
   overrideRenderedData(newNode, vnode);
   return vnode;
