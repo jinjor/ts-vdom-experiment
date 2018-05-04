@@ -68,14 +68,18 @@ function patchComponent(oldVnode: VNode,
     } else {
       // initialize
       component = newVnode.data.component;
-      const sub = component.subscriptions(component.handle);
-      sub.add();
-      newVnode.data.hook = newVnode.data.hook || {};
-      if(newVnode.data.hook.destroy) {
-        throw new Error("destroy hook is already defined");
+      let initialSubValue;
+      if(isDef(component.subscriptions)) {
+        const sub = component.subscriptions(component.handle);
+        sub.add();
+        newVnode.data.hook = newVnode.data.hook || {};
+        if(newVnode.data.hook.destroy) {
+          throw new Error("destroy hook is already defined");
+        }
+        newVnode.data.hook.destroy = sub.remove;
+        initialSubValue = sub.init;
       }
-      newVnode.data.hook.destroy = sub.remove;
-      component.state = component.createState(sub.init);
+      component.state = component.createState(initialSubValue);
     }
     component.prop = newVnode.data.component.prop;
     component.patch = () => {
