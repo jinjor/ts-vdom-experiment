@@ -6,7 +6,6 @@ import { styleModule } from "./snabbdom/src/modules/style";
 import { eventListenersModule } from "./snabbdom/src/modules/eventlisteners";
 import { stateModule } from "./state";
 import { subscriptionsModule } from "./subscriptions";
-import { viewComponent, patchComponent } from "./snabbdom/src/component";
 
 export function thunk(selector, fn: any, args: any): VNodeX {
   const node = originalThunk(selector, fn, args);
@@ -86,28 +85,12 @@ export function createComponent<P, S>(
       view: options.view,
       _subscriptions: options.subscriptions
     };
-    // const node = {
-    //   sel: options.name,
-    //   data: {
-    //     component: component
-    //   }
-    // };
-    function r(_) {
-      console.log("r called");
-      return (h as any)(options.name, {
-        component: component,
-        hook: {
-          init: vnode => {
-            patchComponent(null, vnode, patch);
-          },
-          prepatch: (oldNode, newNode) => {
-            patchComponent(oldNode, newNode, patch);
-          }
-        }
-      });
-    }
-    // const node = thunk("tr", r, [1]);
-    const node = r();
+    const node = {
+      sel: options.name,
+      data: {
+        component: component
+      }
+    };
     addHelpers(node);
     return node;
   };

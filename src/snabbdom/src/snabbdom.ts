@@ -4,7 +4,6 @@ import {Hooks} from './hooks';
 import vnode, {VNode, VNodeData, Key} from './vnode';
 import * as is from './is';
 import htmlDomApi, {DOMAPI} from './htmldomapi';
-import {viewComponent, patchComponent} from './component';
 
 function isUndef(s: any): boolean { return s === undefined; }
 function isDef(s: any): boolean { return s !== undefined; }
@@ -13,7 +12,35 @@ type VNodeQueue = Array<VNode>;
 
 const emptyNode = vnode('', {}, [], undefined, undefined);
 
+function viewComponent(component: any) {
+  const vnode = component.view(component.prop, component.state, component._handle);
+  vnode.data.component = component;
+  return vnode;
+}
+
+function patchComponent(oldVnode: VNode, newVnode: VNode, patch: any) {
+  if(newVnode.data.component) {
+    const component = (oldVnode && oldVnode.data.component) || newVnode.data.component;
+    component.prop = newVnode.data.component.prop;
+    component._patch = () => {
+      patch(newVnode, viewComponent(component));
+    };
+    if(isUndef(component.state)) {
+      component.state = component.createState();
+    }
+    const tmpVnode = viewComponent(component);
+    newVnode.sel = tmpVnode.sel;
+    newVnode.children = tmpVnode.children;
+    newVnode.text = tmpVnode.text;
+    newVnode.key = tmpVnode.key;
+    newVnode.elm = tmpVnode.elm;
+    newVnode.data = tmpVnode.data;
+  }
+}
 function sameVnode(vnode1: VNode, vnode2: VNode): boolean {
+  if(vnode1.data.component && vnode2.data.component) {
+    return vnode1.data.component.name === vnode2.data.component.name;
+  }
   return vnode1.key === vnode2.key && vnode1.sel === vnode2.sel;
 }
 
@@ -77,7 +104,7 @@ export function init(modules: Array<Partial<Module>>, domApi?: DOMAPI) {
   }
 
   function createElm(vnode: VNode, insertedVnodeQueue: VNodeQueue): Node {
-    // patchComponent(null, vnode, patch)
+    patchComponent(null, vnode, patch)
     let i: any, data = vnode.data;
 
     if (data !== undefined) {
@@ -254,7 +281,7 @@ export function init(modules: Array<Partial<Module>>, domApi?: DOMAPI) {
   }
 
   function patchVnode(oldVnode: VNode, vnode: VNode, insertedVnodeQueue: VNodeQueue) {
-    // patchComponent(oldVnode, vnode, patch);
+    patchComponent(oldVnode, vnode, patch);
     let i: any, hook: any, component: any;
 
     if (isDef(i = vnode.data) && isDef(hook = i.hook) && isDef(i = hook.prepatch)) {

@@ -69,8 +69,8 @@ const row = createComponent<RowProps, object>({
     // return n("div")._([
     //   thunk("tr", renderRow, [selected, data.id, data.label, handle])
     // ]);
-    // return thunk("row", renderRow, [selected, data.id, data.label, handle]);
-    return renderRow(selected, data.id, data.label, handle);
+    return thunk("tr", renderRow, [selected, data.id, data.label, handle]);
+    // return renderRow(selected, data.id, data.label, handle);
   }
 });
 interface RootState {
