@@ -1,22 +1,11 @@
-import {
-  h,
-  thunk as originalThunk,
-  Component,
-  init
-} from "./snabbdom/src/snabbdom";
-import { VNode } from "./snabbdom/src/vnode";
+import { h, thunk, Component, init } from "./snabbdom/src/snabbdom";
+import { VNode, VNodeX } from "./snabbdom/src/vnode";
 import { classModule } from "./snabbdom/src/modules/class";
 import { propsModule } from "./snabbdom/src/modules/props";
 import { styleModule } from "./snabbdom/src/modules/style";
 import { eventListenersModule } from "./snabbdom/src/modules/eventlisteners";
 import { stateModule } from "./state";
 import { subscriptionsModule } from "./subscriptions";
-
-export function thunk(selector, fn: any, args: any): VNodeX {
-  const node = originalThunk(selector, fn, args);
-  // addHelpers(node);
-  return node as VNodeX;
-}
 
 export const patch: (oldNode: VNode, newNode: VNode) => void = init([
   stateModule,
@@ -107,20 +96,6 @@ export function createComponent<P, S>(
   };
 }
 
-interface VNodeX extends VNode {
-  a(key: string, value?: string | boolean): VNodeX;
-  c(value: Array<string> | string, active?: boolean): VNodeX;
-  e(key: string, value: (e: any) => void): VNodeX;
-  h(name: string, f: Function): VNodeX;
-  k(name: string | number): VNodeX;
-  l<Data>(
-    models: Array<Data>,
-    f: (data: Data, index: number, array: Array<Data>) => VNodeX
-  ): VNodeX;
-  s(key: string, value: string, active?: boolean): VNodeX;
-  _(children: Array<VNode> | string | number): VNodeX;
-}
-
 function addHelpers(node: any) {
   node.a = (key, value = false) => {
     node.data.props = node.data.props || {};
@@ -161,38 +136,10 @@ function addHelpers(node: any) {
     node.key = name;
     return node;
   };
-  // node.l = (childModels, f) => {
-  //   return node._(
-  //     childModels.map((model, index, array) => {
-  //       const node = f(model, index, array);
-  //       if (node.key === undefined) {
-  //         throw new Error(
-  //           `key for ${JSON.stringify(model, null, 2)} is not provided`
-  //         );
-  //       }
-  //       return node;
-  //     })
-  //   );
-  // };
-  // node._ = children => {
-  //   if (Array.isArray(children)) {
-  //     node.children = node.children || [];
-  //     node.children = children;
-  //     node.text = undefined;
-  //   } else if (children === undefined) {
-  //     // need warning?
-  //   } else {
-  //     node.text = typeof children === "string" ? children : children.toString();
-  //     node.children = undefined;
-  //   }
-  //   return node;
-  // };
 }
 
 export function n(tagName: string): VNodeX {
-  const node = h(tagName);
-  // addHelpers(node);
-  return node as VNodeX;
+  return h(tagName) as VNodeX;
 }
 
 export function start(

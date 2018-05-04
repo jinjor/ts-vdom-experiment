@@ -1,6 +1,6 @@
 import { VNode } from "snabbdom/vnode";
 // import { patch, n, start, createComponent } from "my-vdom";
-import { patch, thunk, n, start, createComponent } from "my-vdom/src/index";
+import { patch, n, start, createComponent } from "my-vdom/src/index";
 
 import { Data, run, runLots, add, update, swapRows, deleteRow } from "./utils";
 

@@ -19,7 +19,7 @@ export interface VNode {
   key: Key | undefined;
 }
 
-interface VNodeX extends VNode {
+export interface VNodeX extends VNode {
   a(key: string, value?: string | boolean): VNodeX;
   c(value: Array<string> | string, active?: boolean): VNodeX;
   e(key: string, value: (e: any) => void): VNodeX;
