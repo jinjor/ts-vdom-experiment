@@ -4,11 +4,9 @@ import { classModule } from "./snabbdom/src/modules/class";
 import { propsModule } from "./snabbdom/src/modules/props";
 import { styleModule } from "./snabbdom/src/modules/style";
 import { eventListenersModule } from "./snabbdom/src/modules/eventlisteners";
-import { stateModule } from "./state";
 import { subscriptionsModule } from "./subscriptions";
 
 export const patch: (oldNode: VNode, newNode: VNode) => void = init([
-  stateModule,
   subscriptionsModule,
   classModule,
   propsModule,
