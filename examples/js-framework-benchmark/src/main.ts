@@ -45,7 +45,7 @@ const row = createComponent<RowProps, object>({
     return ["tr", selected, data.id, data.label, handle];
   },
   thunked(selected, id, label, handle) {
-    console.log("row.view", selected, id, label);
+    // console.log("row.view", selected, id, label);
     return n("tr")
       .c("danger", selected)
       ._([

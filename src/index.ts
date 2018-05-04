@@ -14,7 +14,7 @@ import { subscriptionsModule } from "./subscriptions";
 
 export function thunk(selector, fn: any, args: any): VNodeX {
   const node = originalThunk(selector, fn, args);
-  addHelpers(node);
+  // addHelpers(node);
   return node as VNodeX;
 }
 
@@ -161,37 +161,37 @@ function addHelpers(node: any) {
     node.key = name;
     return node;
   };
-  node.l = (childModels, f) => {
-    return node._(
-      childModels.map((model, index, array) => {
-        const node = f(model, index, array);
-        if (node.key === undefined) {
-          throw new Error(
-            `key for ${JSON.stringify(model, null, 2)} is not provided`
-          );
-        }
-        return node;
-      })
-    );
-  };
-  node._ = children => {
-    if (Array.isArray(children)) {
-      node.children = node.children || [];
-      node.children = children;
-      node.text = undefined;
-    } else if (children === undefined) {
-      // need warning?
-    } else {
-      node.text = typeof children === "string" ? children : children.toString();
-      node.children = undefined;
-    }
-    return node;
-  };
+  // node.l = (childModels, f) => {
+  //   return node._(
+  //     childModels.map((model, index, array) => {
+  //       const node = f(model, index, array);
+  //       if (node.key === undefined) {
+  //         throw new Error(
+  //           `key for ${JSON.stringify(model, null, 2)} is not provided`
+  //         );
+  //       }
+  //       return node;
+  //     })
+  //   );
+  // };
+  // node._ = children => {
+  //   if (Array.isArray(children)) {
+  //     node.children = node.children || [];
+  //     node.children = children;
+  //     node.text = undefined;
+  //   } else if (children === undefined) {
+  //     // need warning?
+  //   } else {
+  //     node.text = typeof children === "string" ? children : children.toString();
+  //     node.children = undefined;
+  //   }
+  //   return node;
+  // };
 }
 
 export function n(tagName: string): VNodeX {
   const node = h(tagName);
-  addHelpers(node);
+  // addHelpers(node);
   return node as VNodeX;
 }
 
