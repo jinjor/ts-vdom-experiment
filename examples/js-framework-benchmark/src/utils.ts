@@ -82,15 +82,15 @@ export function addData(data: Array<Data>, id: number, count: number): number {
 }
 
 export function add(data: Array<Data>, id: number): number {
-  return addData(data, id, 10);
+  return addData(data, id, 1000);
 }
 export function run(data: Array<Data>, id: number): number {
   data.length = 0;
-  return addData(data, id, 10);
+  return addData(data, id, 1000);
 }
 export function runLots(data: Array<Data>, id: number): number {
   data.length = 0;
-  return addData(data, id, 100);
+  return addData(data, id, 10000);
 }
 export function update(data: Array<Data>) {
   updateData(data);
