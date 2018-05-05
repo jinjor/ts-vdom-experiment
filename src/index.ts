@@ -11,17 +11,24 @@ export const patch: (oldNode: VNode, newNode: VNode) => void = init([
   styleModule,
   eventListenersModule
 ]);
-
+interface Events<P, S> {
+  [key: string]: (
+    e: any,
+    state: S,
+    patch: () => void,
+    prop: P
+  ) => boolean | void;
+}
 interface Options<P, S> {
   name: string;
   createState?(initialSubValue: any): S;
-  subscriptions?(handle: any): Sub;
-  events?: object;
-  view(prop: P, state: S, handle: any): VNodeX | Array<any>;
+  subscriptions?(handle: Function): Sub;
+  events?: Events<P, S>;
+  view(prop: P, state: S, handle: Function): VNodeX | Array<any>;
   thunked?: Function;
 }
 
-function makeIterable(e, args) {
+function makeIterable(e: any, args: any) {
   for (let i = 1; i < args.length; i++) {
     e[i - 1] = args[i];
   }
@@ -56,8 +63,8 @@ export function createComponent<P, S>(
       name: options.name,
       createState: options.createState || createStateDefault,
       prop: prop,
-      state: undefined,
-      patch: undefined,
+      state: undefined as any,
+      patch: undefined as any,
       handle(name) {
         const args = arguments;
         return e => {
@@ -82,7 +89,9 @@ export function createComponent<P, S>(
       subscriptions: options.subscriptions
     };
     const vnode = n(options.name);
-    vnode.data.component = component;
+    if (vnode.data) {
+      vnode.data.component = component;
+    }
     return vnode;
   };
 }

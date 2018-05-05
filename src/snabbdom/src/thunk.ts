@@ -25,10 +25,12 @@ function copyToThunk(vnode: VNode, thunk: VNode): void {
     if(thunk.key !== undefined) {
       vnode.key = thunk.key;
     }
-    for(let key of ["style", "props", "class"]) {
-      for(let k in data[key]) {
-        vnode.data[key] = vnode.data[key] || {};
-        vnode.data[key][k] = data[key][k];
+    if(vnode.data) {
+      for(let key of ["style", "props", "class"]) {
+        for(let k in data[key]) {
+          vnode.data[key] = vnode.data[key] || {};
+          vnode.data[key][k] = data[key][k];
+        }
       }
     }
   }

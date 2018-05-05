@@ -42,46 +42,51 @@ class VNodeXImpl implements VNodeX, VNode {
     public text: string | undefined,
     public key: Key | undefined
   ){}
-  a(key, value = false): VNodeXImpl {
-    this.data.props = this.data.props || {};
-    this.data.props[key] = value;
+  ensureData(key: string): any {
+    this.data = this.data || {};
+    this.data.key = this.data[key] || {};
+    return this.data.key;
+  }
+  a(key: string, value = false): VNodeXImpl {
+    const props = this.ensureData("props");
+    props[key] = value;
     return this;
   }
-  c(key, active = true): VNodeXImpl {
-    this.data.class = this.data.class || {};
+  c(key: string | string[], active = true): VNodeXImpl {
+    const clas = this.ensureData("class");
     if (Array.isArray(key)) {
       for (let k of key) {
-        this.data.class[k] = true;
+        clas[k] = true;
       }
     } else {
       for (let k of key.split(" ")) {
-        this.data.class[k] = active;
+        clas[k] = active;
       }
     }
     return this;
   }
-  s(key, value, active = true): VNodeXImpl {
+  s(key: string, value: any, active = true): VNodeXImpl {
     if (active) {
-      this.data.style = this.data.style || {};
-      this.data.style[key] = value;
+      const style = this.ensureData("style");
+      style[key] = value;
     }
     return this;
   }
-  e(key, value):VNodeXImpl {
-    this.data.on = this.data.on || {};
-    this.data.on[key] = value;
+  e(key: string, value: any):VNodeXImpl {
+    const on = this.ensureData("on");
+    on[key] = value;
     return this;
   }
-  h(name, f):VNodeXImpl {
-    this.data.hook = this.data.hook || {};
-    this.data.hook[name] = f;
+  h(name: string, f: Function):VNodeXImpl {
+    const hook = this.ensureData("hook") as any;
+    hook[name] = f;
     return this;
   }
-  k(name):VNodeXImpl {
+  k(name: string | number):VNodeXImpl {
     this.key = name;
     return this;
   }
-  l(childModels, f):VNodeXImpl {
+  l(childModels: any[], f: Function):VNodeXImpl {
     return this._(
       childModels.map((model, index, array) => {
         const node = f(model, index, array);
@@ -94,15 +99,16 @@ class VNodeXImpl implements VNodeX, VNode {
       })
     );
   }
-  _(children):VNodeXImpl {
+  _(children: VNodeX[] | string | number):VNodeXImpl {
     if (Array.isArray(children)) {
       this.children = this.children || [];
       this.children = children;
       this.text = undefined;
-    } else if (children === undefined) {
-      // need warning?
-    } else {
-      this.text = typeof children === "string" ? children : children.toString();
+    } else if (typeof children === "string") {
+      this.text = children;
+      this.children = undefined;
+    } else if (typeof children === "number"){
+      this.text = children.toString();
       this.children = undefined;
     }
     return this;

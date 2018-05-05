@@ -25,7 +25,7 @@ export interface Component<P, S> {
   state: S;
   patch(): void;
   createState(initialSubValue: any): S;
-  subscriptions(handle: Handle): Sub
+  subscriptions?(handle: Handle): Sub
   handle(name: string): Handle;
   view(prop: P, state: S, handle: Handle): VNode | any[];
   thunked?: Function;
@@ -35,16 +35,19 @@ function overrideRenderedData(from: VNode, to: VNode) {
   if(from.key) {
     to.key = from.key;
   }
-  for(let key of ["style", "props", "class"]) {
-    for(let k in from.data[key]) {
-      to.data[key] = to.data[key] || {};
-      to.data[key][k] = from.data[key][k];
+  if(from.data) {
+    to.data = to.data || {};
+    for(let key of ["style", "props", "class"]) {
+      for(let k in from.data[key]) {
+        to.data[key] = to.data[key] || {};
+        to.data[key][k] = from.data[key][k];
+      }
     }
   }
 }
 
 function viewComponent<P, S>(component: Component<P, S>, newNode: VNode): VNode {
-  let vnode;
+  let vnode: any;
   if(component.thunked) {
     const _ = component.view(component.prop, component.state, component.handle) as any[];
     const sel = _[0];
@@ -58,18 +61,18 @@ function viewComponent<P, S>(component: Component<P, S>, newNode: VNode): VNode 
   return vnode;
 }
 
-function patchComponent(oldVnode: VNode,
+function patchComponent(oldVnode: VNode | undefined,
                         newVnode: VNode,
                         patch: (oldNode:VNode, newNode:VNode) => void) {
-  if(newVnode.data.component) {
-    let component;
-    if(isDef(oldVnode) && isDef(oldVnode.data.component)) {
+  if(newVnode.data !== undefined && newVnode.data.component !== undefined) {
+    let component: Component<any, any>;
+    if(oldVnode !== undefined && oldVnode.data !== undefined && oldVnode.data.component !== undefined) {
       component = oldVnode.data.component
     } else {
       // initialize
       component = newVnode.data.component;
       let initialSubValue;
-      if(isDef(component.subscriptions)) {
+      if(component.subscriptions !== undefined) {
         const sub = component.subscriptions(component.handle);
         sub.add();
         newVnode.data.hook = newVnode.data.hook || {};
@@ -96,7 +99,7 @@ function patchComponent(oldVnode: VNode,
 }
 
 function sameVnode(vnode1: VNode, vnode2: VNode): boolean {
-  if(vnode1.data.component && vnode2.data.component) {
+  if(vnode1.data && vnode1.data.component && vnode2.data && vnode2.data.component) {
     return vnode1.data.component.name === vnode2.data.component.name;
   }
   return vnode1.key === vnode2.key && vnode1.sel === vnode2.sel;

@@ -4,9 +4,9 @@ import { patch, n, start, createComponent } from "my-vdom/src/index";
 
 import { Data, run, runLots, add, update, swapRows, deleteRow } from "./utils";
 
-let startTime;
-let lastMeasure;
-function startMeasure(name) {
+let startTime: any;
+let lastMeasure: any;
+function startMeasure(name: string) {
   startTime = performance.now();
   lastMeasure = name;
 }
@@ -44,7 +44,7 @@ const row = createComponent<RowProps, object>({
   view({ selected, data }, state, handle) {
     return ["tr", selected, data.id, data.label, handle];
   },
-  thunked(selected, id, label, handle) {
+  thunked(selected: boolean, id: number, label: string, handle: Function) {
     // console.log("row.view", selected, id, label);
     return n("tr")
       .c("danger", selected)
@@ -74,7 +74,7 @@ const rootComponent = createComponent<undefined, RootState>({
   createState() {
     return {
       data: [],
-      selected: null,
+      selected: undefined,
       id: 1
     };
   },
@@ -82,7 +82,7 @@ const rootComponent = createComponent<undefined, RootState>({
     run(_, state) {
       startMeasure("run");
       state.id = run(state.data, state.id);
-      state.selected = null;
+      state.selected = undefined;
     },
     add(_, state) {
       startMeasure("add");
@@ -103,12 +103,12 @@ const rootComponent = createComponent<undefined, RootState>({
     runLots(_, state) {
       startMeasure("runLots");
       state.id = runLots(state.data, state.id);
-      state.selected = null;
+      state.selected = undefined;
     },
     clear(_, state) {
       startMeasure("clear");
       state.data.length = 0;
-      state.selected = null;
+      state.selected = undefined;
     },
     swapRows(_, state) {
       startMeasure("swapRows");
@@ -182,7 +182,14 @@ const rootComponent = createComponent<undefined, RootState>({
           "true"
         )
       ])
-      .h("postpatch", stopMeasure);
+      .h("postpatch", () => {
+        console.log("postpatch");
+        stopMeasure();
+      })
+      .h("post", () => {
+        console.log("post");
+        stopMeasure();
+      });
   }
 });
 start(rootComponent, document.getElementsByClassName("container")[0]);
