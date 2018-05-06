@@ -1,6 +1,5 @@
-import { VNode } from "snabbdom/vnode";
 // import { patch, n, start, createComponent } from "my-vdom";
-import { patch, n, start, createComponent } from "my-vdom/src/index";
+import { n, start, createComponent } from "my-vdom/src/index";
 
 import { Data, run, runLots, add, update, swapRows, deleteRow } from "./utils";
 
@@ -16,7 +15,7 @@ function stopMeasure() {
     window.setTimeout(() => {
       lastMeasure = null;
       const stop = performance.now();
-      const duration = 0;
+      // const duration = 0;
       console.log(last + " took " + (stop - startTime));
     }, 0);
   }

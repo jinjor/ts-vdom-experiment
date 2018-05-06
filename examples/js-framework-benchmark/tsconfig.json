@@ -7,7 +7,7 @@
     "noImplicitAny": true,
     "strictNullChecks": true,
     "declaration": false,
-    "removeComments": false,
-    "noUnusedLocals": false
+    "removeComments": true,
+    "noUnusedLocals": true
   }
 }

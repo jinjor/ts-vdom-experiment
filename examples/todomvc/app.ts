@@ -1,10 +1,9 @@
-import { VNode } from "snabbdom/vnode";
-import { patch, n, start, createComponent } from "../../src/index";
+import { n, start, createComponent } from "../../src/index";
 
 interface TodoProps {
   todo: Todo;
-  handleToggle: any;
-  handleRemove: any;
+  handleToggle: (e: any) => void;
+  handleRemove: (e: any) => void;
 }
 const todoComponent = createComponent<TodoProps, undefined>({
   name: "todo",
@@ -108,7 +107,7 @@ const app = createComponent<undefined, App>({
       state.todos.splice(index, 1);
     },
     clearCompleted(_, state) {
-      state.todos = state.todos.filter(todo => !todo.done);
+      state.todos = state.todos.filter(todo => !todo.done) as Todos;
     }
   },
   view(_, state, handle) {

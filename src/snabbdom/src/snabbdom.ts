@@ -343,7 +343,7 @@ export function init(modules: Array<Partial<Module>>, domApi?: DOMAPI) {
 
   function patchVnode(oldVnode: VNode, vnode: VNode, insertedVnodeQueue: VNodeQueue) {
     patchComponent(oldVnode, vnode, patch);
-    let i: any, hook: any, component: any;
+    let i: any, hook: any;
 
     if (isDef(i = vnode.data) && isDef(hook = i.hook) && isDef(i = hook.prepatch)) {
       i(oldVnode, vnode);

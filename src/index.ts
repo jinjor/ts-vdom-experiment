@@ -1,11 +1,11 @@
-import { h, thunk, Component, Sub, init } from "./snabbdom/src/snabbdom";
+import { h, Component, Sub, init } from "./snabbdom/src/snabbdom";
 import { VNode, VNodeX } from "./snabbdom/src/vnode";
 import { classModule } from "./snabbdom/src/modules/class";
 import { propsModule } from "./snabbdom/src/modules/props";
 import { styleModule } from "./snabbdom/src/modules/style";
 import { eventListenersModule } from "./snabbdom/src/modules/eventlisteners";
 
-export const patch: (oldNode: VNode, newNode: VNode) => void = init([
+const patch: (oldNode: VNode, newNode: VNode) => void = init([
   classModule,
   propsModule,
   styleModule,
@@ -95,48 +95,6 @@ export function createComponent<P, S>(
     return vnode;
   };
 }
-
-// function addHelpers(node: any) {
-//   node.a = (key, value = false) => {
-//     node.data.props = node.data.props || {};
-//     node.data.props[key] = value;
-//     return node;
-//   };
-//   node.c = function(key, active = true) {
-//     node.data.class = node.data.class || {};
-//     if (Array.isArray(key)) {
-//       for (let k of key) {
-//         node.data.class[k] = true;
-//       }
-//     } else {
-//       for (let k of key.split(" ")) {
-//         node.data.class[k] = active;
-//       }
-//     }
-//     return node;
-//   };
-//   node.s = function(key, value, active = true) {
-//     if (active) {
-//       node.data.style = node.data.style || {};
-//       node.data.style[key] = value;
-//     }
-//     return node;
-//   };
-//   node.e = (key, value) => {
-//     node.data.on = node.data.on || {};
-//     node.data.on[key] = value;
-//     return node;
-//   };
-//   node.h = (name, f) => {
-//     node.data.hook = node.data.hook || {};
-//     node.data.hook[name] = f;
-//     return node;
-//   };
-//   node.k = name => {
-//     node.key = name;
-//     return node;
-//   };
-// }
 
 export function n(tagName: string): VNodeX {
   return h(tagName) as VNodeX;
