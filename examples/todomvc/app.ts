@@ -110,6 +110,13 @@ const app = createComponent<undefined, App>({
     }
   },
   view(_, state, handle) {
+    function filter(f: Function, handler: Function) {
+      return (e: any) => {
+        if (f(e)) {
+          return handler(e);
+        }
+      };
+    }
     return n("section.todoapp")._([
       n("header.header")._([
         n("h1")._("todos"),
@@ -118,11 +125,10 @@ const app = createComponent<undefined, App>({
           .a("autofocus")
           .a("value", state.text)
           .e("input", handle("input"))
-          .e("keyup", e => {
-            if (e.keyCode === 13) {
-              handle("add")(e);
-            }
-          })
+          .e(
+            "keyup",
+            filter((e: KeyboardEvent) => e.keyCode === 13, handle("add"))
+          )
       ]),
       n("section.main")
         .s("display", "none", state.todos.isEmpty())
