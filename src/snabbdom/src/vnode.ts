@@ -44,8 +44,8 @@ class VNodeXImpl implements VNodeX, VNode {
   ){}
   ensureData(key: string): any {
     this.data = this.data || {};
-    this.data.key = this.data[key] || {};
-    return this.data.key;
+    this.data[key] = this.data[key] || {};
+    return this.data[key];
   }
   a(key: string, value = false): VNodeXImpl {
     const props = this.ensureData("props");

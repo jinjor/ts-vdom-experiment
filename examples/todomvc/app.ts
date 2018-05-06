@@ -87,8 +87,7 @@ const app = createComponent<undefined, App>({
       state.text = e.target.value;
     },
     add(e, state, setState) {
-      // TODO filter
-      if (e.keyCode === 13 && state.text.trim().length) {
+      if (state.text.trim().length) {
         state.todos.push(new Todo(state.text, false));
         state.text = "";
         return true;
@@ -119,7 +118,11 @@ const app = createComponent<undefined, App>({
           .a("autofocus")
           .a("value", state.text)
           .e("input", handle("input"))
-          .e("keyup", handle("add"))
+          .e("keyup", e => {
+            if (e.keyCode === 13) {
+              handle("add")(e);
+            }
+          })
       ]),
       n("section.main")
         .s("display", "none", state.todos.isEmpty())
@@ -179,5 +182,4 @@ const app = createComponent<undefined, App>({
 });
 
 const container = document.getElementsByClassName("todoapp")[0];
-
 start(app, container);
