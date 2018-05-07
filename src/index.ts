@@ -48,8 +48,9 @@ export function createComponent<P, S>(
           if (f === undefined) {
             throw new Error(`event "${name}" is not defined`);
           }
+          data = data === undefined ? e : data;
           const triggerPatch = f(
-            data || e,
+            data,
             component.state,
             component.patch,
             component.prop
