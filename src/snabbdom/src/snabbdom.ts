@@ -13,7 +13,7 @@ type VNodeQueue = Array<VNode>;
 
 const emptyNode = vnode('', {}, [], undefined, undefined);
 
-type Handle = (event: any) => void;
+export type Handle = (name: string, data?: any) => ((e:any) => void);
 export interface Sub {
   init(): any;
   add(): void;
@@ -26,7 +26,7 @@ export interface Component<P, S> {
   patch(): void;
   createState(initialSubValue: any): S;
   subscriptions?(handle: Handle): Sub
-  handle(name: string): Handle;
+  handle: Handle;
   view(prop: P, state: S, handle: Handle): VNode | any[];
   thunked?: Function;
 };

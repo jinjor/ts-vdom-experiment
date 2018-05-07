@@ -15,7 +15,6 @@ function stopMeasure() {
     window.setTimeout(() => {
       lastMeasure = null;
       const stop = performance.now();
-      // const duration = 0;
       console.log(last + " took " + (stop - startTime));
     }, 0);
   }
@@ -91,11 +90,11 @@ const rootComponent = createComponent<undefined, RootState>({
       startMeasure("update");
       update(state.data);
     },
-    select([id], state) {
+    select(id, state) {
       startMeasure("select");
       state.selected = id;
     },
-    delete([id], state) {
+    delete(id, state) {
       startMeasure("delete");
       deleteRow(state.data, id);
     },
@@ -181,14 +180,7 @@ const rootComponent = createComponent<undefined, RootState>({
           "true"
         )
       ])
-      .h("postpatch", () => {
-        console.log("postpatch");
-        stopMeasure();
-      })
-      .h("post", () => {
-        console.log("post");
-        stopMeasure();
-      });
+      .h("postpatch", stopMeasure);
   }
 });
 start(rootComponent, document.getElementsByClassName("container")[0]);

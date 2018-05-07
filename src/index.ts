@@ -1,4 +1,4 @@
-import { h, Component, Sub, init } from "./snabbdom/src/snabbdom";
+import { h, Handle, Component, Sub, init } from "./snabbdom/src/snabbdom";
 import { VNode, VNodeX } from "./snabbdom/src/vnode";
 import { classModule } from "./snabbdom/src/modules/class";
 import { propsModule } from "./snabbdom/src/modules/props";
@@ -24,31 +24,8 @@ interface Options<P, S> {
   createState?(initialSubValue: any): S;
   subscriptions?(handle: Function): Sub;
   events?: Events<P, S>;
-  view(prop: P, state: S, handle: Function): VNodeX | Array<any>;
+  view(prop: P, state: S, handle: Handle): VNodeX | Array<any>;
   thunked?: Function;
-}
-
-function makeIterable(e: any, args: any) {
-  for (let i = 1; i < args.length; i++) {
-    e[i - 1] = args[i];
-  }
-  const length = args.length - 1;
-  let cursor = 0;
-  const iterator = {
-    next() {
-      if (cursor >= length) {
-        return {
-          done: true
-        };
-      } else {
-        return {
-          value: e[cursor++],
-          done: false
-        };
-      }
-    }
-  };
-  e[Symbol.iterator] = () => iterator;
 }
 
 function createStateDefault(): any {
@@ -65,16 +42,14 @@ export function createComponent<P, S>(
       prop: prop,
       state: undefined as any,
       patch: undefined as any,
-      handle(name) {
-        const args = arguments;
+      handle(name, data) {
         return e => {
-          makeIterable(e, args);
           const f = events[name];
           if (f === undefined) {
             throw new Error(`event "${name}" is not defined`);
           }
           const triggerPatch = f(
-            e,
+            data || e,
             component.state,
             component.patch,
             component.prop

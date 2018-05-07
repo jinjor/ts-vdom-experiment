@@ -99,10 +99,10 @@ const app = createComponent<undefined, App>({
         todo.toggle();
       });
     },
-    toggle([index], state) {
+    toggle(index, state) {
       state.todos[index].toggle();
     },
-    remove([index], state) {
+    remove(index, state) {
       state.todos.splice(index, 1);
     },
     clearCompleted(_, state) {
